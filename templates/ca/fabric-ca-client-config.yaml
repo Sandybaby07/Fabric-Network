@@ -1,0 +1,46 @@
+
+url: https://CA__URL
+
+mspdir: msp
+
+tls:
+  certfiles:
+  client:
+    certfile:
+    keyfile:
+
+csr:
+  cn: MSP__NAME.ORG__NAME.com
+  keyrequest:
+    algo: ecdsa
+    size: 256
+  serialnumber:
+  names:
+    - C: CSR__C
+      ST: CSR__ST
+      L:
+      O: ORG__NAME
+      OU: CSR__OU
+  hosts:
+    - MSP__NAME.ORG__NAME.com
+
+id:
+  name:
+  type:
+  affiliation:
+  maxenrollments: 0
+  attributes:
+
+enrollment:
+  profile:
+  label:
+
+caname:
+
+bccsp:
+    default: SW
+    sw:
+        hash: SHA2
+        security: 256
+        filekeystore:
+            keystore: msp/keystore

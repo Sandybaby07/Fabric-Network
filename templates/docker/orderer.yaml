@@ -1,0 +1,40 @@
+version: '2'
+
+networks:
+  ORG__NAME_net:
+    external: true
+
+services:
+
+  ORDERER__NAME.ORG__NAME.com:
+    container_name: ORDERER__NAME.ORG__NAME.com
+    image: hyperledger/fabric-orderer:1.4.0 
+    restart: always
+    environment:
+      - ORDERER_GENERAL_LOGLEVEL=debug
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/configtx/genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=ORDERER__MSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/crypto/orderer/msp
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/etc/hyperledger/crypto/orderer/tls/keystore/key.pem
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/etc/hyperledger/crypto/orderer/tls/signcerts/cert.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/etc/hyperledger/crypto/orderer/tls/tlscacerts/tlsca-cert.pem]
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderers
+    command: orderer
+    ports:
+      - ${ORDERER_PORT}:7050
+    volumes:
+      - ./genesis.block:/etc/hyperledger/configtx/genesis.block
+      - ./msp:/etc/hyperledger/crypto/orderer/msp
+      - ./tls:/etc/hyperledger/crypto/orderer/tls
+      
+      - ./volume:/var/hyperledger/production
+    networks:
+      - ORG__NAME_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

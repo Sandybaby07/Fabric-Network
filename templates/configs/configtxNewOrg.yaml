@@ -1,0 +1,8 @@
+Organizations:
+  - &NEW_ORG
+    Name: NEW_ORG
+    ID: NEW_ORGMSP
+    MSPDir: ../../certs/NEW_ORG_LOWER.com/msp
+    AnchorPeers:
+      - Host: peer0.NEW_ORG_LOWER.com
+        Port: 7051

@@ -1,0 +1,47 @@
+version: '2'
+
+networks:
+  ORG__NAME_net:
+    external: true
+
+services:
+
+  cli.PEER__NAME.ORG__NAME.com:
+    container_name: cli.PEER__NAME.ORG__NAME.com
+    image: hyperledger/fabric-tools:1.4.0 
+    restart: always
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=PEER__NAME.ORG__NAME.com:7051
+      - CORE_PEER_LOCALMSPID=PEER__MSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/peers/peer-tls/signcerts/cert.pem
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/peers/peer-tls/tls/keystore/key.pem
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/peers/peer-tls/tlscacerts/tlsca-cert.pem
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/users/Admin@ORG__NAME.com/msp
+
+      - ORG_NAME=ORG__NAME
+      - PEER_MSP_NAME=PEER__MSP__NAME
+
+      - ORDERER_NAME=${ORDERER_NAME}
+      - ORDERER_PORT=${ORDERER_PORT}
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./peer-tls:/opt/gopath/src/github.com/hyperledger/fabric/peer/peers/peer-tls
+      - ./users:/opt/gopath/src/github.com/hyperledger/fabric/peer/users
+      - ./orderer-tls-cert.pem:/opt/gopath/src/github.com/hyperledger/fabric/peer/orderers/orderer-tls-cert.pem
+      - ./configs:/opt/gopath/src/github.com/hyperledger/fabric/peer/configs
+      - ./certs:/opt/gopath/src/github.com/hyperledger/fabric/peer/certs
+      - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/peer/channel-artifacts
+      - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/peer/scripts
+      # - ./chaincodes/${CHAINCODE_NAME}:/opt/gopath/src/${CHAINCODE_NAME}
+      - ./chaincodes.env:/opt/gopath/src/github.com/hyperledger/fabric/peer/chaincodes.env
+    networks:
+      - ORG__NAME_net
+    # extra_hosts:
+    #   - ${ORDERER_NAME}:${ORDERER_IP}

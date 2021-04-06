@@ -1,0 +1,78 @@
+Organizations:
+  - &orgOrderer
+    Name: orgOrderer
+    ID: orgOrdererMSP
+    MSPDir: ../../certs/org.com/msp
+
+  - &orgPeer
+    Name: orgPeer
+    ID: orgPeerMSP
+    MSPDir: ../../certs/org.com/msp
+
+    AnchorPeers:
+    - Host: peer0.org.com
+      Port: 7051
+
+Capabilities:
+  Global: &ChannelCapabilities
+    V1_1: true
+  Orderer: &OrdererCapabilities
+    V1_1: true
+  Application: &ApplicationCapabilities
+    V1_2: true
+Application: &ApplicationConfig
+  Organizations:
+
+Orderer: &OrdererConfig
+  OrdererType: kafka
+  Addresses:
+    - orderer0.org.com:7050
+    - orderer1.org.com:7050
+
+  BatchTimeout: 2s
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+  Kafka:
+    Brokers:
+      - kafka0.org.com:9092
+      - kafka1.org.com:9092
+  Organizations:
+
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "ANY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+Profiles:
+  OrdererGenesis:
+    Capabilities:
+      <<: *ChannelCapabilities
+    Orderer:
+      <<: *OrdererConfig
+      Organizations:
+        - *orgOrderer
+      Capabilities:
+        <<: *OrdererCapabilities
+    Consortiums:
+      orgConsortium:
+        Organizations:
+          - *orgPeer
+
+  DefaultChannel:
+    Consortium: orgConsortium
+    Application:
+      <<: *ApplicationConfig
+      Organizations:
+        - *orgPeer
+      Capabilities:
+        <<: *ApplicationCapabilities

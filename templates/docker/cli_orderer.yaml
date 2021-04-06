@@ -1,0 +1,41 @@
+version: '2'
+
+networks:
+  ORG__NAME_net:
+    external: true
+
+services:
+
+  cli.ORDERER__NAME.ORG__NAME.com:
+    container_name: cli.ORDERER__NAME.ORG__NAME.com
+    image: hyperledger/fabric-tools:1.4.0 
+    restart: always
+    tty: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=ORDERER__NAME.ORG__NAME.com:7050
+      - CORE_PEER_LOCALMSPID=ORDERER__MSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/orderer/orderer-tls/signcerts/cert.pem
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/orderer/orderer-tls/tls/keystore/key.pem
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/orderer/orderer-tls/tlscacerts/tlsca-cert.pem
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/orderer/users/Admin@ORG__NAME.com/msp
+      
+
+      - ORG_NAME=ORG__NAME
+      - ORDERER_MSP_NAME=ORDERER__MSP__NAME
+      - SYS_CHANNEL_NAME=sys-channel
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderer
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./users:/opt/gopath/src/github.com/hyperledger/fabric/orderer/users/
+      - ./orderer-tls:/opt/gopath/src/github.com/hyperledger/fabric/orderer/orderer-tls
+      - ./configs:/opt/gopath/src/github.com/hyperledger/fabric/orderer/configs
+      - ./certs:/opt/gopath/src/github.com/hyperledger/fabric/orderer/certs
+      - ./channel-artifacts:/opt/gopath/src/github.com/hyperledger/fabric/orderer/channel-artifacts
+      - ./scripts:/opt/gopath/src/github.com/hyperledger/fabric/orderer/scripts
+    networks:
+      - ORG__NAME_net

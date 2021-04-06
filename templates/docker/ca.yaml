@@ -1,0 +1,57 @@
+version: "2"
+
+networks:
+  ORG__NAME_net:
+    external: true
+
+services:
+  ca.ORG__NAME.com:
+    image: hyperledger/fabric-ca:1.4.0
+    restart: always
+    environment:
+      - FABRIC_CA_SERVER_CA_NAME=ca.ORG__NAME.com
+      - FABRIC_CA_SERVER_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server/ca-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server/ca-key.pem
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server/ca-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server/ca-key.pem
+      - FABRIC_CA_SERVER_CSR_CN=ca.ORG__NAME.com
+      - FABRIC_CA_SERVER_CSR_HOSTS=ca.ORG__NAME.com
+
+      - FABRIC_CA_CLIENT_TLS_CERTFILES=/etc/hyperledger/fabric-ca-server/ca-cert.pem
+      - FABRIC_CA_CLIENT_HOME=/etc/hyperledger/fabric-ca-client
+
+      - ORG_NAME=ORG__NAME
+      - CA_PORT=${CA_PORT}
+    ports:
+      - ${CA_PORT}:7054
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    working_dir: /scripts
+    volumes:
+      - ./server-home:/etc/hyperledger/fabric-ca-server
+      - ./scripts:/scripts
+    container_name: ca.ORG__NAME.com
+    networks:
+      - ORG__NAME_net
+
+  cert-provider:
+    container_name: cert-provider
+    image: org/cert-provider
+    restart: always
+    environment:
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/home/cert-provider/server-home/ca-cert.pem
+      - CERT_PROVIDER_PORT=${CERT_PROVIDER_PORT}
+      - FABRIC_CA_SERVER_DB_PATH=/home/cert-provider/server-home/fabric-ca-server.db
+      
+      - ORG_NAME=ORG__NAME
+    ports:
+      - ${CERT_PROVIDER_PORT}:7059
+    command: npm start
+    working_dir: /home/cert-provider
+    volumes:
+      - ./server-home:/home/cert-provider/server-home
+    depends_on:
+      - ca.ORG__NAME.com
+    networks:
+      - ORG__NAME_net

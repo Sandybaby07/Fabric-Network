@@ -1,0 +1,87 @@
+version: '2'
+
+networks:
+  ORG__NAME_net:
+    external: true
+
+services:
+
+  couchdb.PEER__NAME.ORG__NAME.com:
+    container_name: couchdb.PEER__NAME.ORG__NAME.com
+    image: hyperledger/fabric-couchdb:0.4.15
+    restart: always
+    environment:
+      - COUCHDB_USER=
+      - COUCHDB_PASSWORD=
+    networks:
+      - ORG__NAME_net
+    ports:
+      - ${COUCHDB_PORT}:5984
+    volumes:
+      - ./volume/couchdb:/opt/couchdb/data
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+
+  PEER__NAME.ORG__NAME.com:
+    container_name: PEER__NAME.ORG__NAME.com
+    image: hyperledger/fabric-peer:1.4.0
+    restart: always
+    environment:
+      - CORE_PEER_ID=PEER__NAME.ORG__NAME.com
+      - CORE_PEER_LOCALMSPID=PEER__MSP
+      - CORE_PEER_ADDRESS=PEER__NAME.ORG__NAME.com:7051
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb.PEER__NAME.ORG__NAME.com:5984
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=PEER__NAME.ORG__NAME.com:7051
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=
+
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=ORG__NAME_net
+      - CORE_LOGGING_PEER=DEBUG
+      - CORE_LOGGING_NODE=DEBUG
+      - CORE_LOGGING_NETWORK=DEBUG
+      - CORE_LOGGING_VERSION=DEBUG
+      - CORE_LOGGING_PROTOUTILS=DEBUG
+      - CORE_LOGGING_ERROR=DEBUG
+      - CORE_LOGGING_MSP=INFO
+      - CORE_LOGGING_GOSSIP=INFO
+      - CORE_LOGGING_GRPC=DEBUG
+      - CORE_LOGGING_LEDGER=DEBUG
+      - CORE_LOGGING_POLICIES=DEBUG
+      - CORE_LOGGING_CAUTHDSL=DEBUG
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      # The following setting skips the gossip handshake since we are
+      # are not doing mutual TLS
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/crypto/peer/msp
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/crypto/peer/tls/keystore/key.pem
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/crypto/peer/tls/signcerts/cert.pem
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/crypto/peer/tls/tlscacerts/tlsca-cert.pem
+    ports:
+      - ${PEER_PORT1}:7051
+      - ${PEER_PORT2}:7053
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+      - /var/run/:/host/var/run/      
+      - ./msp:/etc/hyperledger/crypto/peer/msp
+      - ./tls:/etc/hyperledger/crypto/peer/tls      
+      - ./volume/peer:/var/hyperledger/production
+    networks:
+      - ORG__NAME_net
+    depends_on:
+      - couchdb.PEER__NAME.ORG__NAME.com
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    # extra_hosts:
+    # - ${ORDERER_NAME}:${ORDERER_IP}

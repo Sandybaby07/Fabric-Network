@@ -1,0 +1,28 @@
+version: '2'
+
+networks:
+  ORG__NAME_net:
+    external: true
+
+services:
+  zookeeper0.ORG__NAME.com:
+    container_name: zookeeper0.ORG__NAME.com
+    image: hyperledger/fabric-zookeeper:0.4.15
+    restart: always
+    environment:
+      - ZOO_MY_ID=1
+      - ZOO_SERVERS=server.1=zookeeper0.ORG__NAME.com:2888:3888 server.2=zookeeper1.ORG__NAME.com:2888:3888 server.3=zookeeper2.ORG__NAME.com:2888:3888
+    # ports:
+    #   - 2181:2181
+    #   - 2888:2888
+    #   - 3888:3888
+    volumes:
+      - ./volume/data:/data
+      - ./volume/log:/datalog
+    networks:
+      - ORG__NAME_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
