@@ -19,7 +19,6 @@ General blockchain network setup
     &emsp; └── configtx.yaml
 3. Needs .env. Checkout .env.example for setting up environment variables
 
-# scripts: the most IMPORTANT
 
 ## preparation for docker(container)
 - in folder _scripts/prepare_
